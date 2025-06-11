@@ -14,30 +14,30 @@ export default function Phidget22Sensor() {
   const [status, setStatus] = useState<string>("Not connected");
   const [voltageData, setVoltageData] = useState<string>("--");
 
-  // wrap init in useCallback so we can call it from a button
   const initPhidget = useCallback(async () => {
-    setStatus("Connecting…");
+    setStatus("Waiting for USB device…");
+
     if (!window.phidget22) {
-      console.warn("Phidget22 library not yet loaded");
+      console.warn("Phidget22 library not loaded yet");
       return;
     }
 
     try {
-      // if you were using USBConnection it would be:
-      // const conn = new window.phidget22.USBConnection();
-      // but here we’ll stick with NetworkConnection
+      // 1) Create a WebUSBConnection
       const conn = new window.phidget22.USBConnection();
-      await conn.connect();
 
+      // 2) .open() triggers the browser picker (must be in a user‐gesture handler)
+      await conn.open();
+
+      // 3) Now open your channel just like before
       const input = new window.phidget22.VoltageRatioInput();
-      input.onVoltageRatioChange = (ratio: number) => {
+      input.onVoltageRatioChange = (ratio: number) =>
         setVoltageData(`VoltageRatio: ${ratio}`);
-      };
-
       await input.open(5000);
-      setStatus("Connected");
+
+      setStatus("Connected!");
     } catch (err: any) {
-      console.error("Phidget error:", err);
+      console.error("USB Error:", err);
       setStatus(`⚠️ ${err.message}`);
     }
   }, []);
@@ -48,23 +48,20 @@ export default function Phidget22Sensor() {
       <Script
         src="https://unpkg.com/phidget22@3.x/browser/phidget22.min.js"
         strategy="afterInteractive"
-        onLoad={() => console.log("Phidget22 script loaded")}
       />
 
       <h1 className="text-xl font-bold">Phidget22 DAQ1500 Example</h1>
-
       <p>
         <strong>Status:</strong> {status}
       </p>
 
-      {status !== "Connected" && (
-        <button
-          onClick={initPhidget}
-          className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700"
-        >
-          Connect USB Device
-        </button>
-      )}
+      {/* must be a direct user gesture for WebUSB picker */}
+      <button
+        onClick={initPhidget}
+        className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700"
+      >
+        Connect USB Device
+      </button>
 
       <div>
         <strong>VoltageRatioChange Event:</strong>
