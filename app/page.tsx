@@ -1,8 +1,12 @@
-<script src="https://unpkg.com/phidget22@3.x/browser/phidget22.min.js"></script>
+import React from "react";
+import PhidgetSensor from "../components/PhidgetSensor";
 
-export default function Home() {
-  const weight = "hello world";
+const Page: React.FC = () => {
   return (
-    <h1>{weight}</h1>
+    <main className="p-4">
+      <PhidgetSensor />
+    </main>
   );
-}
+};
+
+export default Page;
