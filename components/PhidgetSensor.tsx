@@ -26,7 +26,7 @@ export default function Phidget22Sensor() {
       // if you were using USBConnection it would be:
       // const conn = new window.phidget22.USBConnection();
       // but here we’ll stick with NetworkConnection
-      const conn = new window.phidget22.NetworkConnection(8989, "localhost");
+      const conn = new window.phidget22.USBConnection();
       await conn.connect();
 
       const input = new window.phidget22.VoltageRatioInput();
