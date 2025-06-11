@@ -23,10 +23,7 @@ export default function Phidget22Sensor() {
     }
 
     try {
-      // 1) Create a WebUSBConnection
-      const conn = new window.phidget22.USBConnection();
-
-      // 2) .open() triggers the browser picker (must be in a user‐gesture handler)
+      const conn = new window.phidget22.NetworkConnection(8989, "localhost");
       await conn.connect();
 
       // 3) Now open your channel just like before
