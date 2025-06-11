@@ -27,7 +27,7 @@ export default function Phidget22Sensor() {
       const conn = new window.phidget22.USBConnection();
 
       // 2) .open() triggers the browser picker (must be in a user‐gesture handler)
-      await conn.open();
+      await conn.connect();
 
       // 3) Now open your channel just like before
       const input = new window.phidget22.VoltageRatioInput();
