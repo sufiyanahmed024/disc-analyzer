@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, useRef } from "react";
 import Script from "next/script";
 
 declare global {
@@ -10,6 +10,7 @@ declare global {
 }
 
 export default function Phidget22Sensor() {
+  //Initial State
   const [status, setStatus] = useState<string>("Not connected");
   const [voltageRatio, setVoltageRatio] = useState<number>(0);
   const [weightDisplay, setWeightDisplay] = useState<string>("-- g");
@@ -20,26 +21,40 @@ export default function Phidget22Sensor() {
   const [knownMass, setKnownMass] = useState<number>(100);
   const [vrAtKnownMass, setVrAtKnownMass] = useState<number>(0);
 
+  //Connection References
+  const connRef  = useRef<any>(null);
+  const inputRef = useRef<any>(null);
+
+  //Initialize Callback
   const initPhidget = useCallback(async () => {
-    setStatus("Connecting…");
+    setStatus("Requesting USB access…");
     if (!window.phidget22) {
       console.warn("Phidget22 library not loaded yet");
       return;
     }
 
     try {
-      const conn = new window.phidget22.NetworkConnection(8989, "localhost");
+      //Create USB connection
+      const conn = new window.phidget22.USBConnection();
+      connRef.current = conn;
+
+      //Triggers browser picker
+      await conn.requestWebUSBDeviceAccess();
+
+      setStatus("USB access granted, connecting…");
       await conn.connect();
 
+      setStatus("Connected, opening channel…");
       const input = new window.phidget22.VoltageRatioInput();
       input.onVoltageRatioChange = (vr: number) => {
         setVoltageRatio(vr);
       };
+      inputRef.current = input;
 
       await input.open(5000);
-      setStatus("Connected");
+      setStatus("Channel open — streaming data!");
     } catch (err: any) {
-      console.error("Phidget error:", err);
+      console.error("Phidget USB error:", err);
       setStatus(`⚠️ ${err.message}`);
     }
   }, []);
