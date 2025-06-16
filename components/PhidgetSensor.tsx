@@ -38,11 +38,13 @@ export default function Phidget22Sensor() {
       const conn = new window.phidget22.USBConnection();
       connRef.current = conn;
 
+      
+      await conn.connect();
+      
       //Triggers browser picker
       await conn.requestWebUSBDeviceAccess();
 
-      setStatus("USB access granted, connecting…");
-      await conn.connect();
+      
 
       setStatus("Connected, opening channel…");
       const input = new window.phidget22.VoltageRatioInput();
